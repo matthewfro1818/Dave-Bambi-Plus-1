@@ -220,6 +220,9 @@ class CharacterSelectState extends MusicBeatState
 			new CharacterForm('godshaggy', 'Shaggy (0.002%)', [1, 1, 1, 1]),
 			new CharacterForm('redshaggy', 'Red Shaggy', [1, 1, 1, 1]),
 		]),
+		new CharacterInSelect('toby', [1, 1, 1, 1], [
+			new CharacterForm('toby', 'Toby Fox', [1,1,1,1])
+		]),
 	];
 	#if SHADERS_ENABLED
 	var bgShader:Shaders.GlitchEffect;
@@ -235,6 +238,7 @@ class CharacterSelectState extends MusicBeatState
 	override public function create():Void 
 	{
 		unlockCharacter('shaggy');
+		unlockCharacter('toby');
 		if (PlayState.SONG.song.toLowerCase() == 'exploitation' && !FlxG.save.data.modchart)
 		{
 			if (FlxG.fullscreen)
