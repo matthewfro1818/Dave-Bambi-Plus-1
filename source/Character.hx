@@ -104,6 +104,24 @@ class Character extends FlxSprite
 				nativelyPlayable = true;
 				flipX = true;
 
+			case 'toby':
+				frames = Paths.getSparrowAtlas('characters/toby', 'shared');
+
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);	
+				}
+				loadOffsetFile(curCharacter);
+				
+				globalOffset = [0, 330];
+				barColor = FlxColor.fromRGB(255, 255, 255);
+
+				playAnim('idle');
+				antialiasing = false;
+				nativelyPlayable = true;
+				flipX = true;
+
 			case 'bf-cool':
 				frames = Paths.getSparrowAtlas('characters/Cool_BF', 'shared');
 				
