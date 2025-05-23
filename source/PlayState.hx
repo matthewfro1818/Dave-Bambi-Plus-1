@@ -515,7 +515,9 @@ class PlayState extends MusicBeatState
 	var noteWidth:Float = 0;
 
 	public static var shaggyVoice:Bool = false;
+	public static var tobyVoice:Bool = false;
 	var isShaggy:Bool = false;
+	var isToby:Bool = false;
 	var legs:FlxSprite;
 	var shaggyT:FlxTrail;
 	var legT:FlxTrail;
@@ -1189,7 +1191,8 @@ class PlayState extends MusicBeatState
 		}
 		bfGroup.add(boyfriend);
 		isShaggy = boyfriend.curCharacter == 'shaggy' || boyfriend.curCharacter == 'supershaggy' || boyfriend.curCharacter == 'godshaggy' || boyfriend.curCharacter == 'redshaggy';
-
+                isToby = boyfriend.curCharacter == 'toby';
+				
 		switch (stageCheck)
 		{
 			case 'desktop':
@@ -1260,6 +1263,7 @@ class PlayState extends MusicBeatState
 				if (isShaggy) boyfriend.y += 50;
 			case 'interdimension-void':
 				if (isShaggy) boyfriend.y += 100;
+				if (isToby) boyfriend.y += 100;
 			case 'green-void':
 				if (isShaggy) {
 					boyfriend.x += 150;
@@ -1336,6 +1340,8 @@ class PlayState extends MusicBeatState
 			'bonus-song', 'bonus-song-2.5', 'bot-trot', 'escape-from-california', 'adventure', 'mealie', 'indignancy', 'memory',
 			'roofs', 'supernovae', 'glitch', 'master', 'cheating', 'unfairness', 'kabunga', 'recursed', 'exploitation'
 		].contains(SONG.song.toLowerCase());
+
+		tobyVoice = isToby && ['interdimensional'].contains(SONG.song.toLowerCase());
 
 		generateSong(SONG.song);
 
@@ -3656,6 +3662,12 @@ class PlayState extends MusicBeatState
 
 		if (SONG.needsVoices) {
 			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song, localFunny == CharacterFunnyEffect.Tristan ? "-Tristan" : shaggyVoice ? "Shaggy" : ""));
+		}
+		if (SONG.needsVoices && isShaggy) {
+			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song, localFunny == CharacterFunnyEffect.Tristan ? "-Tristan" : shaggyVoice ? "Shaggy" : ""));
+		}
+		if (SONG.needsVoices && isToby) {
+			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song, localFunny == CharacterFunnyEffect.Tristan ? "-Tristan" : tobyVoice ? "Toby" : ""));
 		} else {
 			vocals = new FlxSound();
 		}
@@ -6199,7 +6211,9 @@ class PlayState extends MusicBeatState
 						case 'Hurt Note':
 						var hitAnimation:Bool = boyfriend.animation.getByName("hit") != null;
 						boyfriend.playAnim(hitAnimation ? 'hit' : (isShaggy ? 'singDOWNmiss' : 'singRIGHTmiss'), true);
-						if (isShaggy) boyfriend.color = 0xFF840000;
+						boyfriend.playAnim(hitAnimation ? 'hit' : (isToby ? 'singDOWNmiss' : 'singRIGHTmiss'), true);
+						if (isShaggy) boyfriend.color = 0xFF840000;	
+						if (isToby) boyfriend.color = 0xFF840000;
 						return;
 						
 						default:
@@ -7972,7 +7986,9 @@ class PlayState extends MusicBeatState
 					case 'phone':
 						var hitAnimation:Bool = boyfriend.animation.getByName("hit") != null;
 						boyfriend.playAnim(hitAnimation ? 'hit' : (isShaggy ? 'singDOWNmiss' : 'singRIGHTmiss'), true);
+						boyfriend.playAnim(hitAnimation ? 'hit' : (isToby ? 'singDOWNmiss' : 'singRIGHTmiss'), true);
 						if (isShaggy) boyfriend.color = 0xFF000084;
+						if (isToby) boyfriend.color = 0xFF000084;
 						FlxTween.cancelTweensOf(note.MyStrum);
 						note.MyStrum.alpha = 0.01;
 						var noteTween = FlxTween.tween(note.MyStrum, {alpha: 1}, 7, {ease: FlxEase.expoIn});
@@ -7984,12 +8000,14 @@ class PlayState extends MusicBeatState
 						var Animation:Bool = boyfriend.animation.getByName("singSmash") != null;
 						boyfriend.playAnim(boyfriend.animation.getByName("singSmash") == null ? 'singSmash' : 'singSmash', true);
 						return;
-						case 'Hurt Note':
-						/*var hitAnimation:Bool = boyfriend.animation.getByName("hit") != null;
+					case 'Hurt Note':
+						var hitAnimation:Bool = boyfriend.animation.getByName("hit") != null;
 						boyfriend.playAnim(hitAnimation ? 'hit' : (isShaggy ? 'singDOWNmiss' : 'singRIGHTmiss'), true);
+						boyfriend.playAnim(hitAnimation ? 'hit' : (isToby ? 'singDOWNmiss' : 'singRIGHTmiss'), true);
 						if (isShaggy) boyfriend.color = 0xFF840000;
+						if (isToby) boyfriend.color = 0xFF000084;
 						health -= note.isSustainNote ? 0.25 : 0.1;
-						updateAccuracy(); */
+						updateAccuracy();
 						return;
 				}
 			}
@@ -8288,17 +8306,21 @@ class PlayState extends MusicBeatState
 					var Animation:Bool = boyfriend.animation.getByName("singSmash") != null;
 					var heyAnimation:Bool = boyfriend.animation.getByName("hey") != null;
 					boyfriend.playAnim(Animation ? 'singSmash' : (heyAnimation ? 'hey' : (isShaggy ? 'singRIGHT' : 'singUPmiss')), true);
-					case 'Death Note':
-						var hitAnimation:Bool = boyfriend.animation.getByName("hit") != null;
-						boyfriend.playAnim(hitAnimation ? 'hit' : (isShaggy ? 'singDOWNmiss' : 'singRIGHTmiss'), true);
-						if (isShaggy) boyfriend.color = 0xFF840000; 
-						health -= note.isSustainNote ? 0.25 : 0.1; 
-						updateAccuracy(); 
+					boyfriend.playAnim(Animation ? 'singSmash' : (heyAnimation ? 'hey' : (isToby ? 'singRIGHT' : 'singUPmiss')), true);
+				case 'Death Note':
+					var hitAnimation:Bool = boyfriend.animation.getByName("hit") != null;
+					boyfriend.playAnim(hitAnimation ? 'hit' : (isShaggy ? 'singDOWNmiss' : 'singRIGHTmiss'), true);
+					boyfriend.playAnim(hitAnimation ? 'hit' : (isToby ? 'singDOWNmiss' : 'singRIGHTmiss'), true);
+					if (isShaggy) boyfriend.color = 0xFF840000;
+					if (isToby) boyfriend.color = 0xFF840000; 
+					health -= note.isSustainNote ? 0.25 : 0.1; 
+					updateAccuracy(); 
 						
 				case 'phone':
 					var hitAnimation:Bool = boyfriend.animation.getByName("dodge") != null;
 					var heyAnimation:Bool = boyfriend.animation.getByName("hey") != null;
-					boyfriend.playAnim(hitAnimation ? 'dodge' : (heyAnimation ? 'hey' : (isShaggy ? 'singRIGHT' : 'singUPmiss')), true);
+					boyfriend.playAnim(hitAnimation ? 'dodge' : (heyAnimation ? 'hey' : (isShaggy ? 'singRIGHT' : 'singUPmiss')), true);					boyfriend.playAnim(hitAnimation ? 'dodge' : (heyAnimation ? 'hey' : (isShaggy ? 'singRIGHT' : 'singUPmiss')), true);
+					boyfriend.playAnim(hitAnimation ? 'dodge' : (heyAnimation ? 'hey' : (isToby ? 'singRIGHT' : 'singUPmiss')), true);
 					gf.playAnim('cheer', true);
 					if (note.health != 2)
 					{
@@ -8433,6 +8455,14 @@ class PlayState extends MusicBeatState
 			}
 			bfGroup.add(boyfriend);
 		}
+		if (!isToby) {
+			preRecursedSkin = (formoverride != 'none' && boyfriend.curCharacter == formoverride ? formoverride : boyfriend.curCharacter);
+			if (boyfriend.skins.exists('recursed'))
+			{
+				switchBF(boyfriend.skins.get('recursed'), boyfriend.getPosition());
+			}
+			bfGroup.add(boyfriend);
+		}
 		addRecursedUI();		
 	}
 	function addRecursedUI()
@@ -8492,7 +8522,8 @@ class PlayState extends MusicBeatState
 			recursedUI.remove(element);
 			remove(element);
 		}
-		if (!isShaggy) switchBF(preRecursedSkin, boyfriend.getPosition());
+		if (!isShaggy) switchBF(preRecursedSkin, boyfriend.getPosition());	
+		if (!isToby) switchBF(preRecursedSkin, boyfriend.getPosition());
 		health = preRecursedHealth;
 	}
 	function initAlphabet(songList:Array<String>)
@@ -8984,7 +9015,8 @@ class PlayState extends MusicBeatState
 							dad.visible = false;
 							dadmirror.visible = true;
 							curbg.loadGraphic(Paths.image('backgrounds/void/redsky', 'shared'));
-							if (isShaggy) curbg.y -= 200;
+							if (isShaggy) curbg.y -= 200;	
+							if (isToby) curbg.y -= 200;
 							curbg.alpha = 1;
 							curbg.visible = true;
 							iconP2.changeIcon(dadmirror.curCharacter);
@@ -9107,8 +9139,33 @@ class PlayState extends MusicBeatState
 								shx = 770 + boyfriend.globalOffset[0];
 								shy = 450 + boyfriend.globalOffset[1];
 							}
-							
+
+							if (isToby) {
+								FlxTween.linearMotion(boyfriend, boyfriend.x, boyfriend.y, 770 + boyfriend.globalOffset[0], 450 + boyfriend.globalOffset[1], 0.6, true);
+								shx = 770 + boyfriend.globalOffset[0];
+								shy = 450 + boyfriend.globalOffset[1];
+							}
+											
 							if (!isShaggy) {
+								for (char in [boyfriend, gf])
+								{
+									if (char.animation.curAnim != null && char.animation.curAnim.name.startsWith('sing') && !char.animation.curAnim.finished)
+									{
+										char.animation.finishCallback = function(animation:String)
+										{
+											char.canDance = false;
+											char == boyfriend ? char.playAnim('hey', true) : char.playAnim('cheer', true);
+										}
+									}
+									else
+									{
+										char.canDance = false;
+										char == boyfriend ? char.playAnim('hey', true) : char.playAnim('cheer', true);
+									}
+								}
+							}			
+					                
+					                if (!isToby) {
 								for (char in [boyfriend, gf])
 								{
 									if (char.animation.curAnim != null && char.animation.curAnim.name.startsWith('sing') && !char.animation.curAnim.finished)
@@ -9719,8 +9776,10 @@ class PlayState extends MusicBeatState
 							boyfriend.scrollFactor.set();
 							boyfriend.setPosition((bfSpot.x - (boyfriend.width / 3.25)) + boyfriend.globalOffset[0] * boyfriend.offsetScale, (bfSpot.y - (boyfriend.height * 1.1)) + boyfriend.globalOffset[1] * boyfriend.offsetScale);
 							if (isShaggy) boyfriend.y += 100;
+                                                        if (isToby) boyfriend.y += 100;
 							shx = (bfSpot.x - (boyfriend.width / 3.25)) + boyfriend.globalOffset[0] * boyfriend.offsetScale;
-							shy = (bfSpot.y - (boyfriend.height * 1.1)) + boyfriend.globalOffset[1] * boyfriend.offsetScale;
+							shy = (bfSpot.y - (boyfriend.height * 1.1)) + boyfriend.globalOffset[1] * boyfriend.offsetScale;							if (isShaggy) boyfriend.y += 100;
+							shx = (bfSpot.x - (boyfriend.width / 3.25)) + boyfriend.globalOffset[0] * boyfriend.offsetScale;
 							boyfriend.alpha = 0;
 	
 							insert(members.indexOf(bfGroup), bfSpot);
